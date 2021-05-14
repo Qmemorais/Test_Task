@@ -80,19 +80,8 @@ namespace Test_Task
                     }
                     catch (WebException webExcp)
                     {
+                        Console.WriteLine("Urls(html documents) found after crawling a website: " + HTMLDocScan.Count);
                         IfSitemapDoesnotExistFindTime(HTMLDocScan,mainURL);
-                        WebExceptionStatus status = webExcp.Status;
-                        if (status == WebExceptionStatus.ProtocolError)
-                        {
-                            Console.Write("The server returned protocol error ");
-                            HttpWebResponse httpResponse = (HttpWebResponse)webExcp.Response;
-                            Console.WriteLine((int)httpResponse.StatusCode + " - "
-                               + httpResponse.StatusCode);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Wrong URL");
                     }
                 }
             }
@@ -106,6 +95,11 @@ namespace Test_Task
                     Console.WriteLine((int)httpResponse.StatusCode + " - "
                        + httpResponse.StatusCode);
                 }
+            }
+            finally
+            {
+                Console.Write("Press <Enter>");
+                Console.ReadLine();
             }
         }
 
@@ -227,12 +221,13 @@ namespace Test_Task
 
         public void IfSitemapDoesnotExistFindTime(List<string> Existing,string MainPage)
         {//как и предыдщуая только если так и не нашли сайтмап
+            Console.WriteLine("SITEMAP.XML does not exist!");
             Dictionary<string,int> URLWithTime = new Dictionary<string, int>();
             foreach (string url in Existing)
             {
                 try
                 {
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://" + url);
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                     Stopwatch sw = Stopwatch.StartNew();
                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                     sw.Stop();
@@ -241,7 +236,7 @@ namespace Test_Task
                 }
                 catch
                 {
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://" + url);
+                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                     Stopwatch sw = Stopwatch.StartNew();
                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                     sw.Stop();
