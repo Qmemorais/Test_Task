@@ -14,6 +14,7 @@ namespace TestTaskTryAgain
     {
         public void CreateHTML(string url)
         {//основные списки и чапаем везде
+            Stopwatch timeall = Stopwatch.StartNew();
             List<string> HTMLScan = new List<string>();
             List<string> HTMLSitemap = new List<string>();
             try
@@ -43,6 +44,8 @@ namespace TestTaskTryAgain
             finally
             {//если ссылка была не рабочей то ничего не будет
                 OutputPage(HTMLScan, HTMLSitemap);
+                timeall.Stop();
+                Console.WriteLine("Time: " + timeall.Elapsed.Minutes);
                 Console.Write("Press <Enter>");
                 Console.ReadLine();
             }
@@ -104,9 +107,14 @@ namespace TestTaskTryAgain
                         for (int k = 0; k < ExceptMatchInHTML.Count; k++)
                         {
                             AllPages.Add(ExceptMatchInHTML[k]);
-                            if (TryRequest(ExceptMatchInHTML[k]) == true)
-                                //добавление в общий список который ретернем
-                                HTMLScan.Add(ExceptMatchInHTML[k]);
+                            if (ExceptMatchInHTML[k].IndexOf("#") == -1)
+                            {//проверка на совпадение и разницу только в http or https
+                                List<string> query = HTMLScan.Where(web => web.IndexOf(ExceptMatchInHTML[k].Substring(5)) != -1).ToList();
+                                if(query.Count()==0 || ExceptMatchInHTML[k] == MainWeb+"/")
+                                    if (TryRequest(ExceptMatchInHTML[k]) == true)
+                                        //добавление в общий список который ретернем
+                                        HTMLScan.Add(ExceptMatchInHTML[k]);
+                            }
                         }
                 }
             }
@@ -170,6 +178,7 @@ namespace TestTaskTryAgain
             if (HTMLSitemap.Count == 0)
             {
                 Console.WriteLine("Sitemap doesn`t exist!!");
+                HTMLScan = RemoveHttps(HTMLScan);
                 OutputPageTime(HTMLScan);
                 Console.WriteLine("Urls(html documents) found after crawling a website: " + HTMLScan.Count);
             }
@@ -216,21 +225,13 @@ namespace TestTaskTryAgain
             {//рассчет времени
                 try
                 {
-                    int time = GetTime(url);
+                    int time = GetTime("http://" + url);
                     URLWithTime.Add(url, time);
                 }
                 catch
                 {
-                    try
-                    {
-                        int time = GetTime("http://" + url);
-                        URLWithTime.Add(url, time);
-                    }
-                    catch
-                    {
-                        int time = GetTime("https://" + url);
-                        URLWithTime.Add(url, time);
-                    }
+                    int time = GetTime("https://" + url);
+                    URLWithTime.Add(url, time);
                 }
             }
             URLWithTime = URLWithTime.OrderBy(pair => pair.Value).ToDictionary(pair => pair.Key, pair => pair.Value);
