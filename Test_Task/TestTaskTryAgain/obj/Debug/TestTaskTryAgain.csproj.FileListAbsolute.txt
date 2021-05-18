@@ -1,0 +1,7 @@
+C:\Users\Memorais\source\repos\TestTaskTryAgain\obj\Debug\TestTaskTryAgain.csprojAssemblyReference.cache
+C:\Users\Memorais\source\repos\TestTaskTryAgain\obj\Debug\TestTaskTryAgain.csproj.CoreCompileInputs.cache
+C:\Users\Memorais\source\repos\TestTaskTryAgain\bin\Debug\TestTaskTryAgain.exe.config
+C:\Users\Memorais\source\repos\TestTaskTryAgain\bin\Debug\TestTaskTryAgain.exe
+C:\Users\Memorais\source\repos\TestTaskTryAgain\bin\Debug\TestTaskTryAgain.pdb
+C:\Users\Memorais\source\repos\TestTaskTryAgain\obj\Debug\TestTaskTryAgain.exe
+C:\Users\Memorais\source\repos\TestTaskTryAgain\obj\Debug\TestTaskTryAgain.pdb
