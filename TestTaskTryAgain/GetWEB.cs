@@ -72,6 +72,8 @@ namespace TestTaskTryAgain
             List<string> AllPages = new List<string>();
             AllPages.Add(HTMLScan[0]);
             string HRef = @"href\s*=\s*(?:[""'](?<1>[^""']*)[""']|(?<1>\S+))";
+            Regex r = new Regex(HRef, RegexOptions.IgnoreCase | RegexOptions.Compiled,
+                                            TimeSpan.FromSeconds(1));
             for (int i = 0; i < HTMLScan.Count(); i++)
             {
                 if (HTMLScan[i].Contains(MainWeb.Substring(5)))
@@ -81,28 +83,28 @@ namespace TestTaskTryAgain
                     StreamReader read = new StreamReader(response.GetResponseStream(), Encoding.GetEncoding(1251));
                     string HTMLtxt = read.ReadToEnd();
                     response.Close();
-                    //вначале находим все совпадения. дуем в лист
-                    List<string> match = Regex.Matches(HTMLtxt, HRef, RegexOptions.IgnoreCase | RegexOptions.Compiled,
-                                            TimeSpan.FromSeconds(1))
-                        .OfType<Match>()
-                        .Select(m => m.Groups[0].Value)
-                        .ToList();
-                    for (int j = 0; j < match.Count(); j++)
+                    Match match = r.Match(HTMLtxt);
+                    List<string> matches = new List<string>();
+                    while (match.Success)
                     {//преобразование в адекватную строку
                      //строка  favicon.ico не есть ок, надо http:блабла
-                        match[j] = match[j].Substring(6);
-                        int length = match[j].LastIndexOf("\"");
+                        string url__ = match.Value;
+                        url__ = url__.Substring(6);
+                        int length = url__.LastIndexOf("\"");
                         if (length != -1)
-                            match[j] = match[j].Substring(0, length);
-                        if (!match[j].Contains("http"))
+                            url__ = url__.Substring(0, length);
+                        if (!url__.Contains("http"))
                         {
-                            match[j] = MainWeb + match[j];
-                            if (match[j].IndexOf(MainWeb + "/") == -1)
-                                match[j] = match[j].Insert(MainWeb.Length, "/");
+                            url__ = MainWeb + url__;
+                            if (url__.IndexOf(MainWeb + "/") == -1)
+                                url__ = url__.Insert(MainWeb.Length, "/");
                         }
+                        if (url__.Contains(MainWeb.Substring(5)))
+                            matches.Add(url__);
+                        match=match.NextMatch();
                     }
                     //получаем те ссылки которых точно нет в списке. а значит в нигде
-                    List<string> ExceptMatchInHTML = match.Except(AllPages).ToList();
+                    List<string> ExceptMatchInHTML = matches.Except(AllPages).ToList();
                     if (ExceptMatchInHTML.Count != 0)
                         for (int k = 0; k < ExceptMatchInHTML.Count; k++)
                         {
@@ -110,7 +112,7 @@ namespace TestTaskTryAgain
                             if (ExceptMatchInHTML[k].IndexOf("#") == -1)
                             {//проверка на совпадение и разницу только в http or https
                                 List<string> query = HTMLScan.Where(web => web.IndexOf(ExceptMatchInHTML[k].Substring(5)) != -1).ToList();
-                                if(query.Count()==0 || ExceptMatchInHTML[k] == MainWeb+"/")
+                                if (query.Count() == 0 || ExceptMatchInHTML[k] == MainWeb + "/")
                                     if (TryRequest(ExceptMatchInHTML[k]) == true)
                                         //добавление в общий список который ретернем
                                         HTMLScan.Add(ExceptMatchInHTML[k]);
