@@ -14,7 +14,6 @@ namespace TestTaskTryAgain
     {
         public void CreateHTML(string url)
         {//основные списки и чапаем везде
-            Stopwatch timeall = Stopwatch.StartNew();
             List<string> HTMLScan = new List<string>();
             List<string> HTMLSitemap = new List<string>();
             try
@@ -35,17 +34,14 @@ namespace TestTaskTryAgain
                 WebExceptionStatus status = webExcp.Status;
                 if (status == WebExceptionStatus.ProtocolError)
                 {
-                    Console.Write("The server returned protocol error ");
                     HttpWebResponse httpResponse = (HttpWebResponse)webExcp.Response;
-                    Console.WriteLine((int)httpResponse.StatusCode + " - "
-                       + httpResponse.StatusCode);
+                   // Console.WriteLine((int)httpResponse.StatusCode + " - "
+                   //    + httpResponse.StatusCode);
                 }
             }
             finally
             {//если ссылка была не рабочей то ничего не будет
                 OutputPage(HTMLScan, HTMLSitemap);
-                timeall.Stop();
-                Console.WriteLine("Time: " + timeall.Elapsed.Minutes);
                 Console.Write("Press <Enter>");
                 Console.ReadLine();
             }
@@ -228,17 +224,26 @@ namespace TestTaskTryAgain
                 try
                 {
                     int time = GetTime("http://" + url);
-                    URLWithTime.Add(url, time);
+                    URLWithTime.Add("http://"+url, time);
                 }
                 catch
                 {
                     int time = GetTime("https://" + url);
-                    URLWithTime.Add(url, time);
+                    URLWithTime.Add("https://"+url, time);
                 }
             }
             URLWithTime = URLWithTime.OrderBy(pair => pair.Value).ToDictionary(pair => pair.Key, pair => pair.Value);
-            foreach (var urlTime in URLWithTime)
-                Console.WriteLine("URL: " + urlTime.Key + " ;  Time: " + urlTime.Value + "ms");
+            Console.WriteLine(new string('_', 64));
+            Console.WriteLine("{0}{1,-50}|{2,-12}{3}", "|", "URL", "Timing (ms)", "|");
+            Console.WriteLine(new string('_', 64));
+            for (int i = 0; i < URLWithTime.Count(); i++)
+            {
+                if (URLWithTime.ElementAt(i).Key.Length < 47)
+                    Console.WriteLine("{0}{1,-50}|{2,-12}{3}", "|",i + ") " + URLWithTime.ElementAt(i).Key, URLWithTime.ElementAt(i).Value + "ms", "|");
+                else
+                    Console.WriteLine("{0}{1,-50}|{2,-12}{3}", "|", i + ") " + URLWithTime.ElementAt(i).Key.Substring(0, 46) + "...", URLWithTime.ElementAt(i).Value + "ms", "|");
+                Console.WriteLine(new string('_', 64));
+            }
         }
 
         private int GetTime(string url)
