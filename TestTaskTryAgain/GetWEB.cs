@@ -16,7 +16,6 @@ namespace TestTaskTryAgain
         {//основные списки и ходим везде
             List<string> HTMLScan = new List<string>();
             List<string> HTMLSitemap = new List<string>();
-            Stopwatch sw = Stopwatch.StartNew();
             try
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -43,10 +42,8 @@ namespace TestTaskTryAgain
             finally
             {//если ссылка была не рабочей то ничего не будет
                 OutputPage(HTMLScan, HTMLSitemap);
-                //Console.Write("Press <Enter>");
-                //Console.ReadLine();
-                sw.Stop();
-                Console.WriteLine("Time: " + (int)sw.Elapsed.TotalSeconds);
+                Console.Write("Press <Enter>");
+                Console.ReadLine();
             }
         }
         private bool TryRequest(string url)
