@@ -189,8 +189,8 @@ namespace TestTaskTryAgain
                 Output_Name_Page(ExistSitemapNoWeb);
                 Console.WriteLine("Urls FOUNDED BY CRAWLING THE WEBSITE but not in sitemap.xml");
                 Output_Name_Page(ExistWebpNoSitemap);
-                Console.WriteLine("Urls FOUNDED BY CRAWLING THE WEBSITE");
-                OutputPageTime(HTMLScan);
+                Console.WriteLine("Urls FOUNDED BY CRAWLING THE WEBSITE AND SITEMAP.XML");
+                OutputPageTime(HTMLScan.Union(ExistSitemapNoWeb).ToList());
                 Console.WriteLine("Urls(html documents) found after crawling a website: " + HTMLScan.Count);
                 Console.WriteLine("Urls found in sitemap: " + HTMLSitemap.Count);
             }
