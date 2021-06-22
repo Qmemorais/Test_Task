@@ -13,9 +13,10 @@ namespace TestTaskTryAgain
     class GetWEB
     {
         public void CreateHTML(string url)
-        {//основные списки и чапаем везде
+        {//основные списки и ходим везде
             List<string> HTMLScan = new List<string>();
             List<string> HTMLSitemap = new List<string>();
+            Stopwatch sw = Stopwatch.StartNew();
             try
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -42,8 +43,10 @@ namespace TestTaskTryAgain
             finally
             {//если ссылка была не рабочей то ничего не будет
                 OutputPage(HTMLScan, HTMLSitemap);
-                Console.Write("Press <Enter>");
-                Console.ReadLine();
+                //Console.Write("Press <Enter>");
+                //Console.ReadLine();
+                sw.Stop();
+                Console.WriteLine("Time: " + (int)sw.Elapsed.TotalSeconds);
             }
         }
         private bool TryRequest(string url)
@@ -83,7 +86,7 @@ namespace TestTaskTryAgain
                     List<string> matches = new List<string>();
                     while (match.Success)
                     {//преобразование в адекватную строку
-                     //строка  favicon.ico не есть ок, надо http:блабла
+                     //строка  favicon.ico не есть ок, надо http:
                         string url__ = match.Value;
                         url__ = url__.Substring(6);
                         int length = url__.LastIndexOf("\"");
@@ -173,23 +176,24 @@ namespace TestTaskTryAgain
 
         private void OutputPage(List<string> HTMLScan, List<string> HTMLSitemap)
         {
+            HTMLScan = RemoveHttps(HTMLScan);
             if (HTMLSitemap.Count == 0)
             {
                 Console.WriteLine("Sitemap doesn`t exist!!");
-                HTMLScan = RemoveHttps(HTMLScan);
                 OutputPageTime(HTMLScan);
                 Console.WriteLine("Urls(html documents) found after crawling a website: " + HTMLScan.Count);
             }
             else
             {
-                HTMLScan = RemoveHttps(HTMLScan);
                 HTMLSitemap = RemoveHttps(HTMLSitemap);
                 List<string> ExistSitemapNoWeb = HTMLSitemap.Except(HTMLScan).ToList();
                 List<string> ExistWebpNoSitemap = HTMLScan.Except(HTMLSitemap).ToList();
                 Console.WriteLine("Urls FOUNDED IN SITEMAP.XML but not founded after crawling a web site");
-                OutputPageTime(ExistSitemapNoWeb);
+                Output_Name_Page(ExistSitemapNoWeb);
                 Console.WriteLine("Urls FOUNDED BY CRAWLING THE WEBSITE but not in sitemap.xml");
-                OutputPageTime(ExistWebpNoSitemap);
+                Output_Name_Page(ExistWebpNoSitemap);
+                Console.WriteLine("Urls FOUNDED BY CRAWLING THE WEBSITE");
+                OutputPageTime(HTMLScan);
                 Console.WriteLine("Urls(html documents) found after crawling a website: " + HTMLScan.Count);
                 Console.WriteLine("Urls found in sitemap: " + HTMLSitemap.Count);
             }
@@ -205,7 +209,7 @@ namespace TestTaskTryAgain
         }
 
         private List<string> RemoveHttps(List<string> HTML)
-        {//изза разницы в ссылка между http и https
+        {//из-за разницы в ссылках между http и https
             for (int i = 0; i < HTML.Count(); i++)
             {
                 if (HTML[i].Contains("https://"))
@@ -238,14 +242,28 @@ namespace TestTaskTryAgain
             Console.WriteLine(new string('_', 64));
             for (int i = 0; i < URLWithTime.Count(); i++)
             {
-                if (URLWithTime.ElementAt(i).Key.Length < 47)
+                if (URLWithTime.ElementAt(i).Key.Length < 44)
                     Console.WriteLine("{0}{1,-50}|{2,-12}{3}", "|",i + ") " + URLWithTime.ElementAt(i).Key, URLWithTime.ElementAt(i).Value + "ms", "|");
                 else
-                    Console.WriteLine("{0}{1,-50}|{2,-12}{3}", "|", i + ") " + URLWithTime.ElementAt(i).Key.Substring(0, 46) + "...", URLWithTime.ElementAt(i).Value + "ms", "|");
+                    Console.WriteLine("{0}{1,-50}|{2,-12}{3}", "|", i + ") " + URLWithTime.ElementAt(i).Key.Substring(0, 43) + "...", URLWithTime.ElementAt(i).Value + "ms", "|");
                 Console.WriteLine(new string('_', 64));
             }
         }
 
+        private void Output_Name_Page(List<string> HTML)
+        {
+            Console.WriteLine(new string('_', 52));
+            Console.WriteLine("{0}{1,-50}{2}", "|", "URL", "|");
+            Console.WriteLine(new string('_', 52));
+            for (int i = 0; i < HTML.Count(); i++)
+            {
+                if (HTML[i].Length < 44)
+                    Console.WriteLine("{0}{1,-50}|", "|", i + ") " + HTML[i]);
+                else
+                    Console.WriteLine("{0}{1,-50}|", "|", i + ") " + HTML[i].Substring(0, 43) + "...");
+                Console.WriteLine(new string('_', 52));
+            }
+        }
         private int GetTime(string url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
